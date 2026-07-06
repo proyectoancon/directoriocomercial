@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ancón Local — Directorio de restaurantes y bares</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..600&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --fondo: #FAFAF8;
+    --superficie: #FFFFFF;
+    --tinta: #161616;
+    --tinta-suave: #6B6B66;
+    --linea: #ECECE7;
+    --menta: #8CF5CB;
+    --coral: #FFB4A6;
+    --wa: #1DAA61;
+    --display: 'Bricolage Grotesque', system-ui, sans-serif;
+    --texto: 'Instrument Sans', system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: var(--texto); background: var(--fondo); color: var(--tinta); -webkit-font-smoothing: antialiased; }
+
+  .hero { padding: clamp(32px, 6vw, 64px) 24px 28px; max-width: 960px; margin: 0 auto; }
+  .marca { display: inline-flex; align-items: center; gap: 8px; font-family: var(--display); font-size: 14px; font-weight: 600; letter-spacing: 0.5px; margin: 0 0 20px; }
+  .marca .punto { width: 10px; height: 10px; border-radius: 50%; background: var(--menta); }
+  .hero h1 { font-family: var(--display); font-size: clamp(30px, 6vw, 52px); font-weight: 600; letter-spacing: -0.02em; line-height: 1.05; margin: 0 0 10px; }
+  .hero .sub { font-size: 16px; color: var(--tinta-suave); margin: 0 0 24px; }
+
+  .buscador-wrap { position: relative; max-width: 560px; }
+  .buscador-wrap svg { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--tinta-suave); }
+  #buscador { width: 100%; padding: 14px 16px 14px 46px; font-size: 16px; font-family: var(--texto); border-radius: 12px; border: 1px solid var(--linea); background: var(--superficie); outline: none; transition: border-color .15s, box-shadow .15s; }
+  #buscador:hover { border-color: #D8D8D2; }
+  #buscador:focus { border-color: var(--tinta); box-shadow: 0 0 0 3px var(--menta); }
+  #buscador::placeholder { color: #8A8A84; }
+
+  .filtros { max-width: 960px; margin: 0 auto; padding: 0 24px 8px; }
+  .filtro-label { font-size: 12px; font-weight: 600; color: var(--tinta-suave); text-transform: uppercase; letter-spacing: 1px; margin: 14px 0 8px; }
+  .chips { display: flex; gap: 8px; flex-wrap: wrap; }
+  .chip { padding: 8px 16px; border-radius: 999px; font-size: 14px; font-weight: 500; font-family: var(--texto); cursor: pointer; border: 1px solid var(--linea); background: var(--superficie); color: var(--tinta); transition: border-color .15s, background .15s; }
+  .chip:hover { border-color: #C8C8C2; }
+  .chip:focus-visible { outline: 2px solid var(--tinta); outline-offset: 2px; }
+  .chip.activo { background: var(--menta); border-color: var(--menta); color: var(--tinta); font-weight: 600; }
+
+  main { max-width: 960px; margin: 0 auto; padding: 20px 24px 80px; }
+  #contador { font-size: 14px; color: var(--tinta-suave); font-weight: 500; margin: 0 0 16px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
+
+  .card { background: var(--superficie); border-radius: 12px; padding: 20px; border: 1px solid var(--linea); display: flex; flex-direction: column; gap: 10px; transition: border-color .15s, transform .15s; }
+  .card:hover { border-color: #C8C8C2; transform: translateY(-2px); }
+  .card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+  .card h2 { font-family: var(--display); font-size: 19px; font-weight: 600; letter-spacing: -0.01em; margin: 0; }
+  .badge { font-size: 12px; font-weight: 600; background: var(--fondo); border: 1px solid var(--linea); color: var(--tinta-suave); padding: 4px 10px; border-radius: 999px; white-space: nowrap; }
+  .abierto { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; background: var(--menta); color: var(--tinta); padding: 4px 10px; border-radius: 999px; width: fit-content; }
+  .abierto .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--tinta); }
+  .cerrado { display: inline-flex; font-size: 12px; font-weight: 500; color: var(--tinta-suave); background: var(--fondo); border: 1px solid var(--linea); padding: 4px 10px; border-radius: 999px; width: fit-content; }
+  .desc { font-size: 14px; color: var(--tinta-suave); margin: 0; line-height: 1.55; }
+  .meta { display: flex; flex-direction: column; gap: 5px; margin: 0; }
+  .meta-linea { display: flex; align-items: flex-start; gap: 8px; font-size: 13px; color: var(--tinta-suave); line-height: 1.4; }
+  .meta-linea svg { flex-shrink: 0; margin-top: 1px; color: #9A9A94; }
+  .precio-pill { font-size: 13px; font-weight: 600; background: var(--coral); color: var(--tinta); padding: 3px 10px; border-radius: 999px; width: fit-content; }
+  .acciones { display: grid; grid-template-columns: repeat(auto-fit, minmax(70px, 1fr)); gap: 8px; margin-top: auto; padding-top: 4px; }
+  .accion { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; padding: 11px 4px; border-radius: 10px; border: 1px solid var(--linea); background: var(--superficie); color: var(--tinta); font-weight: 600; font-size: 12px; text-decoration: none; transition: border-color .15s, background .15s; }
+  .accion:hover { border-color: #C8C8C2; background: var(--fondo); }
+  .accion.wa { background: var(--wa); border-color: var(--wa); color: #fff; }
+  .accion.wa:hover { opacity: 0.9; }
+  .vacio { text-align: center; padding: 60px 20px; color: var(--tinta-suave); font-size: 15px; }
+</style>
+</head>
+<body>
+
+<section class="hero">
+  <p class="marca"><span class="punto"></span>ANCÓN LOCAL</p>
+  <h1>¿Dónde comer hoy en Ancón?</h1>
+  <p class="sub">Todos los bares y restaurantes de la zona, en un solo lugar.</p>
+  <div class="buscador-wrap">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+    <input id="buscador" placeholder="Busca por nombre, comida o zona" aria-label="Buscar locales">
+  </div>
+</section>
+
+<section class="filtros">
+  <p class="filtro-label">Categoría</p>
+  <div class="chips" id="chips-categoria"></div>
+  <p class="filtro-label">Precio por persona</p>
+  <div class="chips" id="chips-precio"></div>
+</section>
+
+<main>
+  <p id="contador"></p>
+  <div class="grid" id="grid"></div>
+</main>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCHq95reCBB6B6vJagSSqtrjnoPekKjUc4",
+  authDomain: "proyecto-ancon.firebaseapp.com",
+  projectId: "proyecto-ancon",
+  storageBucket: "proyecto-ancon.firebasestorage.app",
+  messagingSenderId: "745359193895",
+  appId: "1:745359193895:web:70ad6d15a93355781f1b02"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const docRef = doc(db, "directorio", "ancon");
+
+const CATEGORIAS = ["Restaurante", "Bar", "Cafetería", "Fonda", "Food Truck"];
+const RANGOS_PRECIO = [
+  { id: "1", corto: "Menos de $10" },
+  { id: "2", corto: "$10 – $25" },
+  { id: "3", corto: "$25 – $50" },
+  { id: "4", corto: "Más de $50" },
+];
+const DIAS = ["L", "M", "X", "J", "V", "S", "D"];
+const DIAS_NOMBRE = { L: "Lun", M: "Mar", X: "Mié", J: "Jue", V: "Vie", S: "Sáb", D: "Dom" };
+
+const ICONO_PIN = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>`;
+const ICONO_RELOJ = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>`;
+const ICONO_WA = `<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.5 14.4c-.3-.15-1.76-.87-2.03-.97-.27-.1-.47-.15-.67.15-.2.3-.77.96-.94 1.16-.17.2-.35.22-.65.07-.3-.15-1.26-.46-2.4-1.48-.88-.79-1.48-1.76-1.65-2.06-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.08-.15-.67-1.62-.92-2.22-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.8.37-.27.3-1.04 1.02-1.04 2.5 0 1.47 1.07 2.89 1.22 3.09.15.2 2.1 3.2 5.1 4.49.71.31 1.27.49 1.7.63.72.23 1.37.2 1.88.12.57-.09 1.76-.72 2.01-1.41.25-.7.25-1.29.17-1.42-.07-.13-.27-.2-.57-.35zM12.05 21.79h-.01a9.87 9.87 0 0 1-5.03-1.38l-.36-.21-3.74.98 1-3.65-.24-.37a9.86 9.86 0 0 1-1.51-5.26c0-5.45 4.44-9.88 9.9-9.88 2.64 0 5.13 1.03 7 2.9a9.82 9.82 0 0 1 2.89 7c0 5.45-4.44 9.87-9.9 9.87zm8.42-18.3A11.82 11.82 0 0 0 12.05 0C5.5 0 .17 5.33.17 11.89c0 2.1.55 4.14 1.59 5.94L.07 24l6.31-1.65a11.88 11.88 0 0 0 5.66 1.44h.01c6.55 0 11.88-5.33 11.88-11.89 0-3.18-1.24-6.16-3.46-8.41z"/></svg>`;
+const ICONO_IG = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="2.5" width="19" height="19" rx="5"/><circle cx="12" cy="12" r="4.5"/><circle cx="17.5" cy="6.5" r="0.5" fill="currentColor"/></svg>`;
+const ICONO_TT = `<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/></svg>`;
+const ICONO_WEB = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.5 3.8 5.6 3.8 9s-1.3 6.5-3.8 9c-2.5-2.5-3.8-5.6-3.8-9S9.5 5.5 12 3Z"/></svg>`;
+
+let locales = [];
+let catFiltro = "Todos";
+let precioFiltro = "Todos";
+
+function precioDe(id) { return RANGOS_PRECIO.find(r => r.id === id)?.corto || ""; }
+function limpiarArroba(v) { return (v || "").replace("@", "").trim(); }
+function normalizarUrl(v) { const u = (v || "").trim(); return u.startsWith("http") ? u : "https://" + u; }
+
+function estaAbierto(horarios) {
+  if (!horarios || horarios.length === 0) return null;
+  const ahora = new Date();
+  const diaIdx = (ahora.getDay() + 6) % 7;
+  const dia = DIAS[diaIdx];
+  const mins = ahora.getHours() * 60 + ahora.getMinutes();
+  const aMin = (hhmm) => { const [h, m] = (hhmm || "0:0").split(":").map(Number); return h * 60 + m; };
+  for (const h of horarios) {
+    if (!h.dias || !h.dias.includes(dia)) continue;
+    const d = aMin(h.desde), t = aMin(h.hasta);
+    if (t > d) { if (mins >= d && mins < t) return true; }
+    else { if (mins >= d || mins < t) return true; }
+  }
+  return false;
+}
+
+function formatearHorarios(horarios) {
+  if (!horarios || horarios.length === 0) return "";
+  return horarios
+    .filter(h => h.dias && h.dias.length > 0)
+    .map(h => {
+      const idx = h.dias.map(d => DIAS.indexOf(d)).sort((a, b) => a - b);
+      const consecutivos = idx.every((v, i) => i === 0 || v === idx[i - 1] + 1);
+      const dias = idx.length >= 3 && consecutivos
+        ? `${DIAS_NOMBRE[DIAS[idx[0]]]}–${DIAS_NOMBRE[DIAS[idx[idx.length - 1]]]}`
+        : idx.map(i => DIAS_NOMBRE[DIAS[i]]).join(", ");
+      return `${dias} ${h.desde}–${h.hasta}`;
+    })
+    .join(" · ");
+}
+
+function renderChips() {
+  const cCat = document.getElementById("chips-categoria");
+  cCat.innerHTML = "";
+  ["Todos", ...CATEGORIAS].forEach(c => {
+    const b = document.createElement("button");
+    b.className = "chip" + (catFiltro === c ? " activo" : "");
+    b.textContent = c;
+    b.setAttribute("aria-pressed", catFiltro === c);
+    b.onclick = () => { catFiltro = c; renderChips(); renderGrid(); };
+    cCat.appendChild(b);
+  });
+
+  const cPre = document.getElementById("chips-precio");
+  cPre.innerHTML = "";
+  const btnTodos = document.createElement("button");
+  btnTodos.className = "chip" + (precioFiltro === "Todos" ? " activo" : "");
+  btnTodos.textContent = "Cualquiera";
+  btnTodos.setAttribute("aria-pressed", precioFiltro === "Todos");
+  btnTodos.onclick = () => { precioFiltro = "Todos"; renderChips(); renderGrid(); };
+  cPre.appendChild(btnTodos);
+  RANGOS_PRECIO.forEach(r => {
+    const b = document.createElement("button");
+    b.className = "chip" + (precioFiltro === r.id ? " activo" : "");
+    b.textContent = r.corto;
+    b.setAttribute("aria-pressed", precioFiltro === r.id);
+    b.onclick = () => { precioFiltro = r.id; renderChips(); renderGrid(); };
+    cPre.appendChild(b);
+  });
+}
+
+function renderGrid() {
+  const texto = document.getElementById("buscador").value.trim().toLowerCase();
+  const filtrados = locales.filter(l => {
+    const okCat = catFiltro === "Todos" || l.categoria === catFiltro;
+    const okPrecio = precioFiltro === "Todos" || l.precio === precioFiltro;
+    const okTexto = !texto || [l.nombre, l.descripcion, l.direccion, l.categoria].join(" ").toLowerCase().includes(texto);
+    return okCat && okPrecio && okTexto;
+  });
+
+  const grid = document.getElementById("grid");
+  const contador = document.getElementById("contador");
+
+  if (filtrados.length === 0) {
+    contador.textContent = "";
+    grid.innerHTML = `<div class="vacio">${locales.length === 0 ? "El directorio se está construyendo. Vuelve pronto." : "Nada coincide con tu búsqueda. Prueba con otro término o filtro."}</div>`;
+    return;
+  }
+
+  contador.textContent = `${filtrados.length} ${filtrados.length === 1 ? "local" : "locales"}`;
+  grid.innerHTML = filtrados.map(l => {
+    const abierto = estaAbierto(l.horarios);
+    const horarioTxt = formatearHorarios(l.horarios);
+    return `
+    <article class="card">
+      <div class="card-top">
+        <h2>${l.nombre}</h2>
+        <span class="badge">${l.categoria}</span>
+      </div>
+      ${abierto === true ? `<span class="abierto"><span class="dot"></span>Abierto ahora</span>` : abierto === false ? `<span class="cerrado">Cerrado</span>` : ""}
+      ${l.descripcion ? `<p class="desc">${l.descripcion}</p>` : ""}
+      <div class="meta">
+        ${l.direccion ? `<span class="meta-linea">${ICONO_PIN}${l.direccion}</span>` : ""}
+        ${horarioTxt ? `<span class="meta-linea">${ICONO_RELOJ}${horarioTxt}</span>` : ""}
+      </div>
+      ${l.precio ? `<span class="precio-pill">${precioDe(l.precio)}</span>` : ""}
+      ${(l.telefono || l.instagram || l.tiktok || l.web) ? `<div class="acciones">
+        ${l.telefono ? `<a class="accion wa" href="https://wa.me/${l.telefono.replace(/\D/g, "")}" target="_blank" rel="noreferrer">${ICONO_WA}WhatsApp</a>` : ""}
+        ${l.instagram ? `<a class="accion" href="https://instagram.com/${limpiarArroba(l.instagram)}" target="_blank" rel="noreferrer">${ICONO_IG}Instagram</a>` : ""}
+        ${l.tiktok ? `<a class="accion" href="https://tiktok.com/@${limpiarArroba(l.tiktok)}" target="_blank" rel="noreferrer">${ICONO_TT}TikTok</a>` : ""}
+        ${l.web ? `<a class="accion" href="${normalizarUrl(l.web)}" target="_blank" rel="noreferrer">${ICONO_WEB}Sitio web</a>` : ""}
+      </div>` : ""}
+    </article>
+  `;}).join("");
+}
+
+document.getElementById("buscador").addEventListener("input", renderGrid);
+
+onSnapshot(docRef, (snap) => {
+  locales = snap.exists() ? (snap.data().locales || []) : [];
+  renderChips();
+  renderGrid();
+}, (error) => {
+  console.error("Error leyendo el directorio:", error);
+  document.getElementById("grid").innerHTML = `<div class="vacio">No se pudo cargar el directorio. Intenta de nuevo en un momento.</div>`;
+});
+</script>
+</body>
+</html>

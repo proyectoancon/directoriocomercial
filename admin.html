@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ancón Local — Administración</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..600&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --fondo: #FAFAF8;
+    --superficie: #FFFFFF;
+    --tinta: #161616;
+    --tinta-suave: #6B6B66;
+    --linea: #ECECE7;
+    --menta: #8CF5CB;
+    --coral: #FFB4A6;
+    --error: #D64545;
+    --display: 'Bricolage Grotesque', system-ui, sans-serif;
+    --texto: 'Instrument Sans', system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: var(--texto); background: var(--fondo); color: var(--tinta); min-height: 100vh; -webkit-font-smoothing: antialiased; }
+
+  header { background: var(--superficie); border-bottom: 1px solid var(--linea); padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+  .marca { display: inline-flex; align-items: center; gap: 8px; font-family: var(--display); font-size: 15px; font-weight: 600; margin: 0; }
+  .marca .punto { width: 10px; height: 10px; border-radius: 50%; background: var(--menta); }
+  .tag { font-size: 11px; background: var(--tinta); color: var(--fondo); font-weight: 600; padding: 4px 10px; border-radius: 999px; letter-spacing: 1px; }
+  #logout-btn { background: transparent; border: 1px solid var(--linea); color: var(--tinta); padding: 8px 16px; border-radius: 999px; font-size: 13px; font-weight: 500; font-family: var(--texto); cursor: pointer; transition: border-color .15s; }
+  #logout-btn:hover { border-color: #C8C8C2; }
+
+  .card { background: var(--superficie); border-radius: 14px; padding: 28px; max-width: 640px; margin: 28px auto; border: 1px solid var(--linea); }
+  .card h1 { font-family: var(--display); font-size: 22px; font-weight: 600; letter-spacing: -0.01em; margin: 0; }
+  .card .sub { margin: 4px 0 0; font-size: 13px; color: var(--tinta-suave); }
+  label { display: block; font-size: 13px; font-weight: 600; color: var(--tinta); margin: 16px 0 6px; }
+  input, select { width: 100%; box-sizing: border-box; padding: 11px 13px; font-size: 15px; font-family: var(--texto); border-radius: 10px; border: 1px solid var(--linea); background: var(--superficie); outline: none; transition: border-color .15s, box-shadow .15s; }
+  input:hover, select:hover { border-color: #D8D8D2; }
+  input:focus, select:focus { border-color: var(--tinta); box-shadow: 0 0 0 3px var(--menta); }
+  input::placeholder { color: #9A9A94; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .submit { width: 100%; margin-top: 24px; padding: 14px 0; border-radius: 12px; background: var(--tinta); color: var(--fondo); font-weight: 600; font-size: 15px; font-family: var(--texto); border: none; cursor: pointer; transition: opacity .15s; }
+  .submit:hover { opacity: 0.85; }
+  .submit:disabled { opacity: 0.5; cursor: default; }
+  .cancelar { width: 100%; margin-top: 10px; padding: 12px 0; border-radius: 12px; background: transparent; color: var(--tinta-suave); font-weight: 500; font-size: 14px; font-family: var(--texto); border: 1px solid var(--linea); cursor: pointer; }
+
+  .horario-row { background: var(--fondo); border-radius: 10px; padding: 12px; margin-top: 8px; border: 1px solid var(--linea); }
+  .dias { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+  .dia-chip { width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--linea); background: var(--superficie); color: var(--tinta-suave); font-weight: 600; font-size: 12px; font-family: var(--texto); cursor: pointer; transition: all .15s; }
+  .dia-chip:hover { border-color: #C8C8C2; }
+  .dia-chip.on { border-color: var(--menta); background: var(--menta); color: var(--tinta); }
+  .horas { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .horas input[type=time] { width: auto; }
+  .quitar-horario { background: none; border: none; color: var(--error); font-size: 12px; font-weight: 600; font-family: var(--texto); cursor: pointer; padding: 0; }
+  .add-horario { margin-top: 10px; padding: 10px 16px; border-radius: 10px; background: transparent; border: 1px dashed #C8C8C2; color: var(--tinta); font-weight: 600; font-size: 13px; font-family: var(--texto); cursor: pointer; transition: border-color .15s; }
+  .add-horario:hover { border-color: var(--tinta); }
+
+  .lista { max-width: 640px; margin: 0 auto; padding: 0 24px 80px; }
+  .contador { font-size: 13px; color: var(--tinta-suave); font-weight: 500; }
+  .item { background: var(--superficie); border: 1px solid var(--linea); border-radius: 12px; padding: 14px 16px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .item-name { font-family: var(--display); font-weight: 600; font-size: 15px; margin: 0; }
+  .item-meta { font-size: 12px; color: var(--tinta-suave); margin: 2px 0 0; }
+  .edit-btn { padding: 8px 16px; border-radius: 999px; background: var(--menta); color: var(--tinta); font-weight: 600; border: none; font-size: 13px; font-family: var(--texto); cursor: pointer; }
+  .del-btn { padding: 8px 14px; border-radius: 999px; background: transparent; color: var(--error); border: 1px solid var(--linea); font-size: 13px; font-family: var(--texto); cursor: pointer; }
+
+  .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: var(--tinta); color: var(--fondo); padding: 12px 22px; border-radius: 12px; font-weight: 500; font-size: 14px; z-index: 50; display: none; }
+
+  .login-box { max-width: 380px; margin: 80px auto; background: var(--superficie); border: 1px solid var(--linea); border-radius: 16px; padding: 32px; }
+  .login-box .titulo { font-family: var(--display); font-size: 22px; font-weight: 600; margin: 0 0 4px; }
+  .login-box .sub { font-size: 14px; color: var(--tinta-suave); margin: 0 0 8px; }
+  .oculto { display: none !important; }
+</style>
+</head>
+<body>
+
+<div id="login-pantalla" class="login-box">
+  <p class="marca" style="margin-bottom:16px;"><span class="punto"></span>ANCÓN LOCAL</p>
+  <p class="titulo">Administración</p>
+  <p class="sub">Inicia sesión para continuar.</p>
+  <label>Correo</label>
+  <input id="login-email" type="email" placeholder="tu@correo.com">
+  <label>Contraseña</label>
+  <input id="login-password" type="password" placeholder="••••••••">
+  <button class="submit" id="login-btn">Entrar</button>
+</div>
+
+<div id="admin-app" class="oculto">
+  <header>
+    <p class="marca"><span class="punto"></span>ANCÓN LOCAL</p>
+    <div style="display:flex;gap:10px;align-items:center;">
+      <span class="tag">PANEL PRIVADO</span>
+      <button id="logout-btn">Cerrar sesión</button>
+    </div>
+  </header>
+
+  <div class="card">
+    <h1 id="form-titulo">Agregar local</h1>
+    <p class="sub">Al guardar, se publica de inmediato en el sitio público.</p>
+
+    <label>Nombre del local *</label>
+    <input id="f-nombre" placeholder="Ej: Fonda La Boca">
+
+    <div class="row">
+      <div>
+        <label>Categoría</label>
+        <select id="f-categoria">
+          <option>Restaurante</option>
+          <option>Bar</option>
+          <option>Cafetería</option>
+          <option>Fonda</option>
+          <option>Food Truck</option>
+        </select>
+      </div>
+      <div>
+        <label>Precio por persona</label>
+        <select id="f-precio">
+          <option value="1">$ · Menos de $10</option>
+          <option value="2" selected>$$ · $10 – $25</option>
+          <option value="3">$$$ · $25 – $50</option>
+          <option value="4">$$$$ · Más de $50</option>
+        </select>
+      </div>
+    </div>
+
+    <label>Horario de atención</label>
+    <div id="horarios-contenedor"></div>
+    <button type="button" class="add-horario" id="add-horario">+ Agregar otro horario</button>
+
+    <label>Dirección / referencia</label>
+    <input id="f-direccion" placeholder="Ej: Calle Arnulfo Arias, frente a la entrada del Cerro">
+
+    <div class="row">
+      <div>
+        <label>Teléfono / WhatsApp</label>
+        <input id="f-telefono" placeholder="+507 6000-0000">
+      </div>
+      <div>
+        <label>Instagram</label>
+        <input id="f-instagram" placeholder="@nombredelocal">
+      </div>
+    </div>
+
+    <label>TikTok</label>
+    <input id="f-tiktok" placeholder="@nombredelocal">
+
+    <label>Descripción corta</label>
+    <input id="f-descripcion" placeholder="Ej: Comida criolla, almuerzo ejecutivo desde $5">
+
+    <button class="submit" id="btn-guardar">Publicar en el directorio</button>
+    <button class="cancelar oculto" id="btn-cancelar">Cancelar edición</button>
+  </div>
+
+  <div class="lista">
+    <p class="contador" id="contador-locales">0 locales publicados</p>
+    <div id="lista-locales"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCHq95reCBB6B6vJagSSqtrjnoPekKjUc4",
+  authDomain: "proyecto-ancon.firebaseapp.com",
+  projectId: "proyecto-ancon",
+  storageBucket: "proyecto-ancon.firebasestorage.app",
+  messagingSenderId: "745359193895",
+  appId: "1:745359193895:web:70ad6d15a93355781f1b02"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+const docRef = doc(db, "directorio", "ancon");
+
+const DIAS = ["L", "M", "X", "J", "V", "S", "D"];
+const DIAS_NOMBRE = { L: "Lun", M: "Mar", X: "Mié", J: "Jue", V: "Vie", S: "Sáb", D: "Dom" };
+
+let locales = [];
+let editandoId = null;
+let horarios = [];
+
+function nuevoHorario() { return { dias: [], desde: "11:00", hasta: "22:00" }; }
+
+function avisar(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.style.display = "block";
+  setTimeout(() => t.style.display = "none", 2500);
+}
+
+const loginBtn = document.getElementById("login-btn");
+const loginEmail = document.getElementById("login-email");
+const loginPassword = document.getElementById("login-password");
+
+loginBtn.addEventListener("click", async () => {
+  const email = loginEmail.value.trim();
+  const password = loginPassword.value;
+  if (!email || !password) { avisar("Completa correo y contraseña"); return; }
+  loginBtn.disabled = true;
+  loginBtn.textContent = "Entrando…";
+  try {
+    await signInWithEmailAndPassword(auth, email, password);
+  } catch (e) {
+    avisar("Correo o contraseña incorrectos");
+    loginBtn.disabled = false;
+    loginBtn.textContent = "Entrar";
+  }
+});
+loginPassword.addEventListener("keydown", (e) => { if (e.key === "Enter") loginBtn.click(); });
+
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    document.getElementById("login-pantalla").classList.add("oculto");
+    document.getElementById("admin-app").classList.remove("oculto");
+    cargarLocales();
+  } else {
+    document.getElementById("login-pantalla").classList.remove("oculto");
+    document.getElementById("admin-app").classList.add("oculto");
+    loginBtn.disabled = false;
+    loginBtn.textContent = "Entrar";
+  }
+});
+
+async function cargarLocales() {
+  try {
+    const snap = await getDoc(docRef);
+    locales = snap.exists() ? (snap.data().locales || []) : [];
+  } catch (e) {
+    avisar("Error cargando el directorio");
+    locales = [];
+  }
+  renderLista();
+}
+
+async function publicar() {
+  try {
+    await setDoc(docRef, { locales });
+  } catch (e) {
+    avisar("Error al publicar — intenta de nuevo");
+    throw e;
+  }
+}
+
+function limpiarForm() {
+  document.getElementById("f-nombre").value = "";
+  document.getElementById("f-categoria").value = "Restaurante";
+  document.getElementById("f-precio").value = "2";
+  document.getElementById("f-direccion").value = "";
+  document.getElementById("f-telefono").value = "";
+  document.getElementById("f-instagram").value = "";
+  document.getElementById("f-tiktok").value = "";
+  document.getElementById("f-descripcion").value = "";
+  horarios = [nuevoHorario()];
+  renderHorarios();
+  editandoId = null;
+  document.getElementById("form-titulo").textContent = "Agregar local";
+  document.getElementById("btn-guardar").textContent = "Publicar en el directorio";
+  document.getElementById("btn-cancelar").classList.add("oculto");
+}
+
+function cargarFormDesde(l) {
+  document.getElementById("f-nombre").value = l.nombre || "";
+  document.getElementById("f-categoria").value = l.categoria || "Restaurante";
+  document.getElementById("f-precio").value = l.precio || "2";
+  document.getElementById("f-direccion").value = l.direccion || "";
+  document.getElementById("f-telefono").value = l.telefono || "";
+  document.getElementById("f-instagram").value = l.instagram || "";
+  document.getElementById("f-tiktok").value = l.tiktok || "";
+  document.getElementById("f-descripcion").value = l.descripcion || "";
+  horarios = l.horarios && l.horarios.length ? JSON.parse(JSON.stringify(l.horarios)) : [nuevoHorario()];
+  renderHorarios();
+  editandoId = l.id;
+  document.getElementById("form-titulo").textContent = "Editar local";
+  document.getElementById("btn-guardar").textContent = "Guardar cambios y publicar";
+  document.getElementById("btn-cancelar").classList.remove("oculto");
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function renderHorarios() {
+  const cont = document.getElementById("horarios-contenedor");
+  cont.innerHTML = "";
+  horarios.forEach((h, i) => {
+    const row = document.createElement("div");
+    row.className = "horario-row";
+
+    const diasDiv = document.createElement("div");
+    diasDiv.className = "dias";
+    DIAS.forEach(d => {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "dia-chip" + (h.dias.includes(d) ? " on" : "");
+      b.textContent = d;
+      b.onclick = () => {
+        h.dias = h.dias.includes(d) ? h.dias.filter(x => x !== d) : [...h.dias, d];
+        renderHorarios();
+      };
+      diasDiv.appendChild(b);
+    });
+    row.appendChild(diasDiv);
+
+    const horasDiv = document.createElement("div");
+    horasDiv.className = "horas";
+    const desde = document.createElement("input");
+    desde.type = "time"; desde.value = h.desde;
+    desde.onchange = (e) => h.desde = e.target.value;
+    const hasta = document.createElement("input");
+    hasta.type = "time"; hasta.value = h.hasta;
+    hasta.onchange = (e) => h.hasta = e.target.value;
+    const span = document.createElement("span");
+    span.textContent = "a"; span.style.fontSize = "13px"; span.style.color = "#6B6B66";
+    horasDiv.appendChild(desde); horasDiv.appendChild(span); horasDiv.appendChild(hasta);
+
+    if (horarios.length > 1) {
+      const quitar = document.createElement("button");
+      quitar.type = "button"; quitar.className = "quitar-horario"; quitar.textContent = "Quitar";
+      quitar.onclick = () => { horarios = horarios.filter((_, idx) => idx !== i); renderHorarios(); };
+      horasDiv.appendChild(quitar);
+    }
+    row.appendChild(horasDiv);
+    cont.appendChild(row);
+  });
+}
+
+document.getElementById("add-horario").addEventListener("click", () => {
+  horarios.push(nuevoHorario());
+  renderHorarios();
+});
+
+function renderLista() {
+  document.getElementById("contador-locales").textContent =
+    `${locales.length} ${locales.length === 1 ? "local publicado" : "locales publicados"}`;
+  const cont = document.getElementById("lista-locales");
+  cont.innerHTML = "";
+  locales.forEach(l => {
+    const item = document.createElement("div");
+    item.className = "item";
+    item.innerHTML = `
+      <div>
+        <p class="item-name">${l.nombre}</p>
+        <p class="item-meta">${l.categoria}${l.direccion ? " · " + l.direccion : ""}</p>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button class="edit-btn">Editar</button>
+        <button class="del-btn">Eliminar</button>
+      </div>
+    `;
+    item.querySelector(".edit-btn").onclick = () => cargarFormDesde(l);
+    item.querySelector(".del-btn").onclick = () => eliminar(l.id);
+    cont.appendChild(item);
+  });
+}
+
+async function eliminar(id) {
+  const l = locales.find(x => x.id === id);
+  if (!confirm(`¿Eliminar "${l?.nombre}" del sitio público?`)) return;
+  locales = locales.filter(x => x.id !== id);
+  await publicar();
+  renderLista();
+  if (editandoId === id) limpiarForm();
+  avisar("Eliminado del sitio público");
+}
+
+document.getElementById("btn-guardar").addEventListener("click", async () => {
+  const nombre = document.getElementById("f-nombre").value.trim();
+  if (!nombre) { avisar("El nombre es obligatorio"); return; }
+
+  const datos = {
+    nombre,
+    categoria: document.getElementById("f-categoria").value,
+    precio: document.getElementById("f-precio").value,
+    direccion: document.getElementById("f-direccion").value.trim(),
+    telefono: document.getElementById("f-telefono").value.trim(),
+    instagram: document.getElementById("f-instagram").value.trim(),
+    tiktok: document.getElementById("f-tiktok").value.trim(),
+    descripcion: document.getElementById("f-descripcion").value.trim(),
+    horarios: JSON.parse(JSON.stringify(horarios)),
+  };
+
+  if (editandoId) {
+    locales = locales.map(l => l.id === editandoId ? { ...datos, id: editandoId, creado: l.creado } : l);
+    await publicar();
+    avisar(`"${nombre}" actualizado y publicado`);
+  } else {
+    const nuevo = { ...datos, id: Date.now().toString(), creado: new Date().toISOString() };
+    locales = [nuevo, ...locales];
+    await publicar();
+    avisar(`"${nombre}" publicado`);
+  }
+  renderLista();
+  limpiarForm();
+});
+
+document.getElementById("btn-cancelar").addEventListener("click", limpiarForm);
+
+limpiarForm();
+
+document.getElementById("logout-btn").addEventListener("click", () => signOut(auth));
+</script>
+</body>
+</html>
