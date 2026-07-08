@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Suma tu local — Ancón Local</title>
+<meta name="description" content="Registra tu bar o restaurante en el directorio de Ancón. Gratis. Revisamos tu solicitud y lo publicamos.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..600&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --fondo: #FAFAF8;
+    --superficie: #FFFFFF;
+    --tinta: #161616;
+    --tinta-suave: #6B6B66;
+    --linea: #ECECE7;
+    --menta: #8CF5CB;
+    --menta-suave: #E8FDF4;
+    --coral: #FFB4A6;
+    --error: #D64545;
+    --display: 'Bricolage Grotesque', system-ui, sans-serif;
+    --texto: 'Instrument Sans', system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: var(--texto); background: var(--fondo); color: var(--tinta); -webkit-font-smoothing: antialiased; }
+
+  .nav { border-bottom: 1px solid var(--linea); background: var(--superficie); }
+  .nav-inner { max-width: 720px; margin: 0 auto; padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; }
+  .marca { display: inline-flex; align-items: center; gap: 8px; font-family: var(--display); font-size: 16px; font-weight: 600; text-decoration: none; }
+  .marca .punto { width: 10px; height: 10px; border-radius: 50%; background: var(--menta); }
+  .volver { font-size: 14px; font-weight: 500; color: var(--tinta-suave); text-decoration: none; }
+  .volver:hover { color: var(--tinta); }
+
+  .head { max-width: 720px; margin: 0 auto; padding: clamp(32px, 6vw, 56px) 24px 8px; }
+  .head .eyebrow { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; background: var(--menta-suave); border: 1px solid var(--menta); padding: 6px 14px; border-radius: 999px; margin: 0 0 18px; }
+  .head h1 { font-family: var(--display); font-size: clamp(28px, 5vw, 42px); font-weight: 600; letter-spacing: -0.02em; line-height: 1.05; margin: 0 0 12px; }
+  .head p { font-size: 16px; color: var(--tinta-suave); margin: 0; line-height: 1.55; max-width: 560px; }
+
+  .card { background: var(--superficie); border: 1px solid var(--linea); border-radius: 16px; padding: 28px; max-width: 720px; margin: 28px auto 60px; }
+  label { display: block; font-size: 13px; font-weight: 600; color: var(--tinta); margin: 18px 0 6px; }
+  label:first-of-type { margin-top: 0; }
+  .req { color: var(--error); }
+  input, select { width: 100%; box-sizing: border-box; padding: 12px 14px; font-size: 15px; font-family: var(--texto); border-radius: 10px; border: 1px solid var(--linea); background: var(--superficie); outline: none; transition: border-color .15s, box-shadow .15s; }
+  input:hover, select:hover { border-color: #D8D8D2; }
+  input:focus, select:focus { border-color: var(--tinta); box-shadow: 0 0 0 3px var(--menta); }
+  input::placeholder { color: #9A9A94; }
+  .ayuda { font-size: 12px; color: var(--tinta-suave); margin: 6px 0 0; line-height: 1.45; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 560px) { .row { grid-template-columns: 1fr; } }
+
+  .horario-row { background: var(--fondo); border-radius: 10px; padding: 12px; margin-top: 8px; border: 1px solid var(--linea); }
+  .dias { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+  .dia-chip { width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--linea); background: var(--superficie); color: var(--tinta-suave); font-weight: 600; font-size: 12px; font-family: var(--texto); cursor: pointer; transition: all .15s; }
+  .dia-chip:hover { border-color: #C8C8C2; }
+  .dia-chip.on { border-color: var(--menta); background: var(--menta); color: var(--tinta); }
+  .horas { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .horas input[type=time] { width: auto; }
+  .quitar-horario { background: none; border: none; color: var(--error); font-size: 12px; font-weight: 600; font-family: var(--texto); cursor: pointer; padding: 0; }
+  .add-horario { margin-top: 10px; padding: 10px 16px; border-radius: 10px; background: transparent; border: 1px dashed #C8C8C2; color: var(--tinta); font-weight: 600; font-size: 13px; font-family: var(--texto); cursor: pointer; transition: border-color .15s; }
+  .add-horario:hover { border-color: var(--tinta); }
+
+  .divisor { border: none; border-top: 1px solid var(--linea); margin: 28px 0 0; }
+  .divisor-label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--tinta-suave); margin: 24px 0 0; }
+
+  .submit { width: 100%; margin-top: 28px; padding: 15px 0; border-radius: 12px; background: var(--tinta); color: var(--fondo); font-weight: 600; font-size: 15px; font-family: var(--texto); border: none; cursor: pointer; transition: opacity .15s; }
+  .submit:hover { opacity: 0.85; }
+  .submit:disabled { opacity: 0.5; cursor: default; }
+
+  .exito { max-width: 560px; margin: 60px auto; background: var(--superficie); border: 1px solid var(--linea); border-radius: 16px; padding: 40px 32px; text-align: center; }
+  .exito .check { width: 56px; height: 56px; border-radius: 50%; background: var(--menta); display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; }
+  .exito h2 { font-family: var(--display); font-size: 24px; font-weight: 600; margin: 0 0 10px; }
+  .exito p { font-size: 15px; color: var(--tinta-suave); line-height: 1.55; margin: 0 0 24px; }
+  .exito a { display: inline-block; background: var(--tinta); color: var(--fondo); padding: 13px 26px; border-radius: 999px; font-weight: 600; font-size: 14px; text-decoration: none; }
+
+  .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: var(--error); color: #fff; padding: 12px 22px; border-radius: 12px; font-weight: 500; font-size: 14px; z-index: 50; display: none; }
+  .oculto { display: none !important; }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="marca"><span class="punto"></span>Ancón Local</a>
+    <a href="index.html" class="volver">← Volver al directorio</a>
+  </div>
+</nav>
+
+<div id="formulario">
+  <div class="head">
+    <p class="eyebrow">🌿 Gratis para tu negocio</p>
+    <h1>Suma tu local al directorio</h1>
+    <p>Llena los datos de tu bar o restaurante. Revisamos tu solicitud y, una vez aprobada, tu local aparece en el directorio de Ancón — visible para cientos de personas que buscan dónde comer cada día.</p>
+  </div>
+
+  <div class="card">
+    <label>Nombre del local <span class="req">*</span></label>
+    <input id="f-nombre" placeholder="Ej: Fonda La Boca">
+
+    <div class="row">
+      <div>
+        <label>Categoría</label>
+        <select id="f-categoria">
+          <option>Restaurante</option>
+          <option>Bar</option>
+          <option>Cafetería</option>
+          <option>Fonda</option>
+          <option>Food Truck</option>
+        </select>
+      </div>
+      <div>
+        <label>Precio por persona</label>
+        <select id="f-precio">
+          <option value="1">$ · Menos de $10</option>
+          <option value="2" selected>$$ · $10 – $25</option>
+          <option value="3">$$$ · $25 – $50</option>
+          <option value="4">$$$$ · Más de $50</option>
+        </select>
+      </div>
+    </div>
+
+    <label>Descripción corta</label>
+    <input id="f-descripcion" placeholder="Ej: Cocina criolla con almuerzo ejecutivo desde $5. Terraza y opciones veganas.">
+    <p class="ayuda">Una o dos frases que digan qué ofrecen y qué los distingue: tipo de comida, especialidad, si tienen terraza, delivery, opciones veganas, etc.</p>
+
+    <label>Horario de atención</label>
+    <div id="horarios-contenedor"></div>
+    <button type="button" class="add-horario" id="add-horario">+ Agregar otro horario</button>
+
+    <hr class="divisor">
+    <p class="divisor-label">Ubicación</p>
+
+    <label>Dirección / referencia</label>
+    <input id="f-direccion" placeholder="Ej: Av. Amador, edificio Balboa, local 3 — frente al parque, portón azul">
+    <p class="ayuda">Escribe con el mayor detalle posible: calle, edificio, local y referencias visibles. Mientras más pistas, más fácil que te encuentren.</p>
+
+    <label>Coordenadas (opcional, para ubicación exacta)</label>
+    <input id="f-coordenadas" placeholder="8.9631, -79.5560">
+    <p class="ayuda">En Google Maps: busca tu local por nombre, clic derecho sobre el pin → copia los números. Con esto el botón "Cómo llegar" cae exacto en Waze y Google Maps.</p>
+
+    <hr class="divisor">
+    <p class="divisor-label">Contacto y redes</p>
+
+    <div class="row">
+      <div>
+        <label>Teléfono / WhatsApp</label>
+        <input id="f-telefono" placeholder="+507 6000-0000">
+        <p class="ayuda">Con código de país.</p>
+      </div>
+      <div>
+        <label>Instagram</label>
+        <input id="f-instagram" placeholder="@nombredelocal">
+      </div>
+    </div>
+
+    <div class="row">
+      <div>
+        <label>TikTok</label>
+        <input id="f-tiktok" placeholder="@nombredelocal">
+      </div>
+      <div>
+        <label>Página web</label>
+        <input id="f-web" placeholder="www.nombredelocal.com">
+      </div>
+    </div>
+
+    <hr class="divisor">
+    <p class="divisor-label">Tus datos (para contactarte)</p>
+
+    <div class="row">
+      <div>
+        <label>Tu nombre <span class="req">*</span></label>
+        <input id="f-contacto-nombre" placeholder="Nombre del dueño o encargado">
+      </div>
+      <div>
+        <label>Tu WhatsApp o correo <span class="req">*</span></label>
+        <input id="f-contacto-medio" placeholder="Para avisarte cuando se publique">
+      </div>
+    </div>
+    <p class="ayuda">Estos datos son solo para que te contactemos sobre tu solicitud. No se publican.</p>
+
+    <button class="submit" id="btn-enviar">Enviar solicitud</button>
+  </div>
+</div>
+
+<div id="pantalla-exito" class="exito oculto">
+  <div class="check">
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#161616" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+  </div>
+  <h2>¡Solicitud enviada!</h2>
+  <p>Gracias. Vamos a revisar los datos de tu local y, una vez aprobado, aparecerá en el directorio. Si necesitamos algo más, te contactamos por el medio que dejaste.</p>
+  <a href="index.html">Volver al directorio</a>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCHq95reCBB6B6vJagSSqtrjnoPekKjUc4",
+  authDomain: "proyecto-ancon.firebaseapp.com",
+  projectId: "proyecto-ancon",
+  storageBucket: "proyecto-ancon.firebasestorage.app",
+  messagingSenderId: "745359193895",
+  appId: "1:745359193895:web:70ad6d15a93355781f1b02"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const DIAS = ["L", "M", "X", "J", "V", "S", "D"];
+let horarios = [{ dias: [], desde: "11:00", hasta: "22:00" }];
+
+function avisar(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.style.display = "block";
+  setTimeout(() => t.style.display = "none", 3000);
+}
+
+function renderHorarios() {
+  const cont = document.getElementById("horarios-contenedor");
+  cont.innerHTML = "";
+  horarios.forEach((h, i) => {
+    const row = document.createElement("div");
+    row.className = "horario-row";
+    const diasDiv = document.createElement("div");
+    diasDiv.className = "dias";
+    DIAS.forEach(d => {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "dia-chip" + (h.dias.includes(d) ? " on" : "");
+      b.textContent = d;
+      b.onclick = () => {
+        h.dias = h.dias.includes(d) ? h.dias.filter(x => x !== d) : [...h.dias, d];
+        renderHorarios();
+      };
+      diasDiv.appendChild(b);
+    });
+    row.appendChild(diasDiv);
+    const horasDiv = document.createElement("div");
+    horasDiv.className = "horas";
+    const desde = document.createElement("input");
+    desde.type = "time"; desde.value = h.desde;
+    desde.onchange = (e) => h.desde = e.target.value;
+    const hasta = document.createElement("input");
+    hasta.type = "time"; hasta.value = h.hasta;
+    hasta.onchange = (e) => h.hasta = e.target.value;
+    const span = document.createElement("span");
+    span.textContent = "a"; span.style.fontSize = "13px"; span.style.color = "#6B6B66";
+    horasDiv.appendChild(desde); horasDiv.appendChild(span); horasDiv.appendChild(hasta);
+    if (horarios.length > 1) {
+      const quitar = document.createElement("button");
+      quitar.type = "button"; quitar.className = "quitar-horario"; quitar.textContent = "Quitar";
+      quitar.onclick = () => { horarios = horarios.filter((_, idx) => idx !== i); renderHorarios(); };
+      horasDiv.appendChild(quitar);
+    }
+    row.appendChild(horasDiv);
+    cont.appendChild(row);
+  });
+}
+
+document.getElementById("add-horario").addEventListener("click", () => {
+  horarios.push({ dias: [], desde: "11:00", hasta: "22:00" });
+  renderHorarios();
+});
+
+renderHorarios();
+
+const btn = document.getElementById("btn-enviar");
+btn.addEventListener("click", async () => {
+  const nombre = document.getElementById("f-nombre").value.trim();
+  const contactoNombre = document.getElementById("f-contacto-nombre").value.trim();
+  const contactoMedio = document.getElementById("f-contacto-medio").value.trim();
+
+  if (!nombre) { avisar("El nombre del local es obligatorio"); return; }
+  if (!contactoNombre || !contactoMedio) { avisar("Déjanos tu nombre y un medio de contacto"); return; }
+
+  const solicitud = {
+    nombre,
+    categoria: document.getElementById("f-categoria").value,
+    precio: document.getElementById("f-precio").value,
+    descripcion: document.getElementById("f-descripcion").value.trim(),
+    direccion: document.getElementById("f-direccion").value.trim(),
+    coordenadas: document.getElementById("f-coordenadas").value.trim(),
+    telefono: document.getElementById("f-telefono").value.trim(),
+    instagram: document.getElementById("f-instagram").value.trim(),
+    tiktok: document.getElementById("f-tiktok").value.trim(),
+    web: document.getElementById("f-web").value.trim(),
+    horarios: JSON.parse(JSON.stringify(horarios)),
+    contactoNombre,
+    contactoMedio,
+    enviado: serverTimestamp(),
+  };
+
+  btn.disabled = true;
+  btn.textContent = "Enviando…";
+  try {
+    await addDoc(collection(db, "solicitudes"), solicitud);
+    document.getElementById("formulario").classList.add("oculto");
+    document.getElementById("pantalla-exito").classList.remove("oculto");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  } catch (e) {
+    console.error(e);
+    avisar("No se pudo enviar. Revisa tu conexión e intenta de nuevo.");
+    btn.disabled = false;
+    btn.textContent = "Enviar solicitud";
+  }
+});
+</script>
+</body>
+</html>

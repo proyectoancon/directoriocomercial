@@ -38,7 +38,16 @@
   input:hover, select:hover { border-color: #D8D8D2; }
   input:focus, select:focus { border-color: var(--tinta); box-shadow: 0 0 0 3px var(--menta); }
   input::placeholder { color: #9A9A94; }
+  .ayuda { font-size: 12px; color: var(--tinta-suave); margin: 6px 0 0; line-height: 1.45; }
   .row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 560px) {
+    .row { grid-template-columns: 1fr; }
+    .card { padding: 20px; margin: 20px auto; }
+    .solicitudes { padding: 0 16px; }
+    .lista { padding: 0 16px 60px; }
+    header { padding: 14px 16px; }
+    .login-box { margin: 40px auto; padding: 24px; }
+  }
   .submit { width: 100%; margin-top: 24px; padding: 14px 0; border-radius: 12px; background: var(--tinta); color: var(--fondo); font-weight: 600; font-size: 15px; font-family: var(--texto); border: none; cursor: pointer; transition: opacity .15s; }
   .submit:hover { opacity: 0.85; }
   .submit:disabled { opacity: 0.5; cursor: default; }
@@ -64,6 +73,22 @@
   .del-btn { padding: 8px 14px; border-radius: 999px; background: transparent; color: var(--error); border: 1px solid var(--linea); font-size: 13px; font-family: var(--texto); cursor: pointer; }
 
   .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: var(--tinta); color: var(--fondo); padding: 12px 22px; border-radius: 12px; font-weight: 500; font-size: 14px; z-index: 50; display: none; }
+
+  .solicitudes { max-width: 640px; margin: 28px auto 0; padding: 0 24px; }
+  .sol-head { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .sol-head h2 { font-family: var(--display); font-size: 20px; font-weight: 600; margin: 0; }
+  .sol-count { background: var(--coral); color: var(--tinta); font-size: 13px; font-weight: 600; padding: 3px 11px; border-radius: 999px; }
+  .sol-card { background: var(--superficie); border: 1px solid var(--coral); border-radius: 14px; padding: 20px; margin-bottom: 12px; }
+  .sol-card h3 { font-family: var(--display); font-size: 17px; font-weight: 600; margin: 0 0 4px; }
+  .sol-card .sol-cat { font-size: 13px; color: var(--tinta-suave); margin: 0 0 12px; }
+  .sol-datos { font-size: 13px; color: var(--tinta-suave); line-height: 1.6; margin: 0 0 12px; }
+  .sol-datos strong { color: var(--tinta); font-weight: 600; }
+  .sol-contacto { background: var(--fondo); border-radius: 10px; padding: 10px 12px; font-size: 13px; margin: 0 0 14px; }
+  .sol-contacto strong { color: var(--tinta); }
+  .sol-acciones { display: flex; gap: 8px; flex-wrap: wrap; }
+  .sol-btn-rev { padding: 9px 18px; border-radius: 999px; background: var(--tinta); color: var(--fondo); font-weight: 600; border: none; font-size: 13px; font-family: var(--texto); cursor: pointer; }
+  .sol-btn-desc { padding: 9px 16px; border-radius: 999px; background: transparent; color: var(--error); border: 1px solid var(--linea); font-size: 13px; font-family: var(--texto); cursor: pointer; }
+  .sol-vacio { font-size: 14px; color: var(--tinta-suave); padding: 4px 0 8px; }
 
   .login-box { max-width: 380px; margin: 80px auto; background: var(--superficie); border: 1px solid var(--linea); border-radius: 16px; padding: 32px; }
   .login-box .titulo { font-family: var(--display); font-size: 22px; font-weight: 600; margin: 0 0 4px; }
@@ -92,6 +117,14 @@
       <button id="logout-btn">Cerrar sesión</button>
     </div>
   </header>
+
+  <div class="solicitudes" id="solicitudes-seccion" style="display:none;">
+    <div class="sol-head">
+      <h2>Solicitudes pendientes</h2>
+      <span class="sol-count" id="sol-count">0</span>
+    </div>
+    <div id="solicitudes-lista"></div>
+  </div>
 
   <div class="card">
     <h1 id="form-titulo">Agregar local</h1>
@@ -127,24 +160,42 @@
     <button type="button" class="add-horario" id="add-horario">+ Agregar otro horario</button>
 
     <label>Dirección / referencia</label>
-    <input id="f-direccion" placeholder="Ej: Calle Arnulfo Arias, frente a la entrada del Cerro">
+    <input id="f-direccion" placeholder="Ej: Av. Amador, edificio Balboa, local 3 — frente al parque, portón azul">
+    <p class="ayuda">Escribe con el mayor detalle posible: calle, edificio, local y referencias visibles (frente a…, al lado de…, color del portón). Mientras más pistas des, más fácil que lleguen.</p>
+
+    <label>Coordenadas (opcional, para ubicación exacta)</label>
+    <input id="f-coordenadas" placeholder="8.9631, -79.5560">
+    <p class="ayuda">En Google Maps: clic derecho sobre el punto exacto → copia los números que aparecen arriba. Si lo dejas vacío, el botón "Cómo llegar" usa la dirección escrita.</p>
 
     <div class="row">
       <div>
         <label>Teléfono / WhatsApp</label>
         <input id="f-telefono" placeholder="+507 6000-0000">
+        <p class="ayuda">Con código de país. Es el número al que llega el botón de WhatsApp.</p>
       </div>
       <div>
         <label>Instagram</label>
         <input id="f-instagram" placeholder="@nombredelocal">
+        <p class="ayuda">Solo el usuario, con o sin @.</p>
       </div>
     </div>
 
-    <label>TikTok</label>
-    <input id="f-tiktok" placeholder="@nombredelocal">
+    <div class="row">
+      <div>
+        <label>TikTok</label>
+        <input id="f-tiktok" placeholder="@nombredelocal">
+        <p class="ayuda">Solo el usuario, con o sin @.</p>
+      </div>
+      <div>
+        <label>Página web</label>
+        <input id="f-web" placeholder="www.nombredelocal.com">
+        <p class="ayuda">Opcional. Se le agrega https:// solo.</p>
+      </div>
+    </div>
 
     <label>Descripción corta</label>
-    <input id="f-descripcion" placeholder="Ej: Comida criolla, almuerzo ejecutivo desde $5">
+    <input id="f-descripcion" placeholder="Ej: Cocina criolla con almuerzo ejecutivo desde $5. Terraza y opciones veganas.">
+    <p class="ayuda">Una o dos frases que digan qué ofrecen y qué los distingue. Incluye lo que la gente busca: tipo de comida, especialidad, si tienen terraza, delivery, opciones veganas, etc. — eso también ayuda a que aparezcan en el buscador.</p>
 
     <button class="submit" id="btn-guardar">Publicar en el directorio</button>
     <button class="cancelar oculto" id="btn-cancelar">Cancelar edición</button>
@@ -160,7 +211,7 @@
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, doc, getDoc, setDoc, collection, getDocs, deleteDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 const firebaseConfig = {
@@ -218,6 +269,7 @@ onAuthStateChanged(auth, (user) => {
     document.getElementById("login-pantalla").classList.add("oculto");
     document.getElementById("admin-app").classList.remove("oculto");
     cargarLocales();
+    cargarSolicitudes();
   } else {
     document.getElementById("login-pantalla").classList.remove("oculto");
     document.getElementById("admin-app").classList.add("oculto");
@@ -246,18 +298,118 @@ async function publicar() {
   }
 }
 
+// ---------- Solicitudes pendientes ----------
+let solicitudes = [];
+
+async function cargarSolicitudes() {
+  try {
+    const q = query(collection(db, "solicitudes"), orderBy("enviado", "desc"));
+    const snap = await getDocs(q);
+    solicitudes = snap.docs.map(d => ({ _docId: d.id, ...d.data() }));
+  } catch (e) {
+    // Si falla el orderBy (sin índice o sin timestamp), intenta sin ordenar
+    try {
+      const snap = await getDocs(collection(db, "solicitudes"));
+      solicitudes = snap.docs.map(d => ({ _docId: d.id, ...d.data() }));
+    } catch (e2) {
+      solicitudes = [];
+    }
+  }
+  renderSolicitudes();
+}
+
+function formatHorariosSol(hs) {
+  if (!hs || hs.length === 0) return "—";
+  return hs.filter(h => h.dias && h.dias.length).map(h => `${h.dias.join("")} ${h.desde}–${h.hasta}`).join(" · ") || "—";
+}
+
+function renderSolicitudes() {
+  const seccion = document.getElementById("solicitudes-seccion");
+  const lista = document.getElementById("solicitudes-lista");
+  document.getElementById("sol-count").textContent = solicitudes.length;
+
+  if (solicitudes.length === 0) {
+    seccion.style.display = "none";
+    return;
+  }
+  seccion.style.display = "block";
+  lista.innerHTML = "";
+
+  solicitudes.forEach(s => {
+    const card = document.createElement("div");
+    card.className = "sol-card";
+    const redes = [s.instagram && "IG: " + s.instagram, s.tiktok && "TT: " + s.tiktok, s.web].filter(Boolean).join(" · ");
+    card.innerHTML = `
+      <h3>${s.nombre || "(sin nombre)"}</h3>
+      <p class="sol-cat">${s.categoria || ""}${s.precio ? " · rango " + s.precio : ""}</p>
+      <p class="sol-datos">
+        ${s.descripcion ? `${s.descripcion}<br>` : ""}
+        ${s.direccion ? `<strong>Dirección:</strong> ${s.direccion}<br>` : ""}
+        ${s.coordenadas ? `<strong>Coordenadas:</strong> ${s.coordenadas}<br>` : ""}
+        ${s.telefono ? `<strong>Tel:</strong> ${s.telefono}<br>` : ""}
+        ${redes ? `<strong>Redes:</strong> ${redes}<br>` : ""}
+        <strong>Horario:</strong> ${formatHorariosSol(s.horarios)}
+      </p>
+      <div class="sol-contacto">
+        <strong>Solicita:</strong> ${s.contactoNombre || "—"} · ${s.contactoMedio || "—"}
+      </div>
+      <div class="sol-acciones">
+        <button class="sol-btn-rev">Revisar y publicar</button>
+        <button class="sol-btn-desc">Descartar</button>
+      </div>
+    `;
+    card.querySelector(".sol-btn-rev").onclick = () => revisarSolicitud(s);
+    card.querySelector(".sol-btn-desc").onclick = () => descartarSolicitud(s);
+    lista.appendChild(card);
+  });
+}
+
+// Carga los datos de la solicitud en el formulario de arriba para revisar/editar antes de publicar.
+// Al publicar desde el form, se elimina la solicitud de la cola.
+let solicitudEnRevision = null;
+
+function revisarSolicitud(s) {
+  cargarFormDesde({
+    nombre: s.nombre, categoria: s.categoria, precio: s.precio,
+    direccion: s.direccion, coordenadas: s.coordenadas, telefono: s.telefono,
+    instagram: s.instagram, tiktok: s.tiktok, web: s.web,
+    descripcion: s.descripcion, horarios: s.horarios,
+  });
+  editandoId = null; // es un local nuevo, no una edición de uno existente
+  solicitudEnRevision = s._docId;
+  document.getElementById("form-titulo").textContent = "Revisar solicitud";
+  document.getElementById("btn-guardar").textContent = "Aprobar y publicar";
+  document.getElementById("btn-cancelar").classList.remove("oculto");
+  window.scrollTo({ top: document.querySelector(".card").offsetTop - 20, behavior: "smooth" });
+}
+
+async function descartarSolicitud(s) {
+  if (!confirm(`¿Descartar la solicitud de "${s.nombre}"? No se puede deshacer.`)) return;
+  try {
+    await deleteDoc(doc(db, "solicitudes", s._docId));
+    solicitudes = solicitudes.filter(x => x._docId !== s._docId);
+    renderSolicitudes();
+    avisar("Solicitud descartada");
+  } catch (e) {
+    avisar("Error al descartar");
+  }
+}
+
 function limpiarForm() {
   document.getElementById("f-nombre").value = "";
   document.getElementById("f-categoria").value = "Restaurante";
   document.getElementById("f-precio").value = "2";
   document.getElementById("f-direccion").value = "";
+  document.getElementById("f-coordenadas").value = "";
   document.getElementById("f-telefono").value = "";
   document.getElementById("f-instagram").value = "";
   document.getElementById("f-tiktok").value = "";
+  document.getElementById("f-web").value = "";
   document.getElementById("f-descripcion").value = "";
   horarios = [nuevoHorario()];
   renderHorarios();
   editandoId = null;
+  solicitudEnRevision = null;
   document.getElementById("form-titulo").textContent = "Agregar local";
   document.getElementById("btn-guardar").textContent = "Publicar en el directorio";
   document.getElementById("btn-cancelar").classList.add("oculto");
@@ -268,9 +420,11 @@ function cargarFormDesde(l) {
   document.getElementById("f-categoria").value = l.categoria || "Restaurante";
   document.getElementById("f-precio").value = l.precio || "2";
   document.getElementById("f-direccion").value = l.direccion || "";
+  document.getElementById("f-coordenadas").value = l.coordenadas || "";
   document.getElementById("f-telefono").value = l.telefono || "";
   document.getElementById("f-instagram").value = l.instagram || "";
   document.getElementById("f-tiktok").value = l.tiktok || "";
+  document.getElementById("f-web").value = l.web || "";
   document.getElementById("f-descripcion").value = l.descripcion || "";
   horarios = l.horarios && l.horarios.length ? JSON.parse(JSON.stringify(l.horarios)) : [nuevoHorario()];
   renderHorarios();
@@ -374,9 +528,11 @@ document.getElementById("btn-guardar").addEventListener("click", async () => {
     categoria: document.getElementById("f-categoria").value,
     precio: document.getElementById("f-precio").value,
     direccion: document.getElementById("f-direccion").value.trim(),
+    coordenadas: document.getElementById("f-coordenadas").value.trim(),
     telefono: document.getElementById("f-telefono").value.trim(),
     instagram: document.getElementById("f-instagram").value.trim(),
     tiktok: document.getElementById("f-tiktok").value.trim(),
+    web: document.getElementById("f-web").value.trim(),
     descripcion: document.getElementById("f-descripcion").value.trim(),
     horarios: JSON.parse(JSON.stringify(horarios)),
   };
@@ -391,6 +547,16 @@ document.getElementById("btn-guardar").addEventListener("click", async () => {
     await publicar();
     avisar(`"${nombre}" publicado`);
   }
+
+  // Si este local venía de una solicitud pendiente, se elimina de la cola tras publicarlo.
+  if (solicitudEnRevision) {
+    try {
+      await deleteDoc(doc(db, "solicitudes", solicitudEnRevision));
+      solicitudes = solicitudes.filter(x => x._docId !== solicitudEnRevision);
+      renderSolicitudes();
+    } catch (e) { /* el local ya quedó publicado; la solicitud se puede descartar manualmente */ }
+  }
+
   renderLista();
   limpiarForm();
 });
